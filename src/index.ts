@@ -19,6 +19,7 @@ const webRTCEventEmitter = new NativeEventEmitter(WebRTCModule);
 
 let hasAudioFocus: boolean;
 let appState: AppStateStatus;
+let appStateSubscription: any;
 const audioFocusChangeListeners: Set<(hasFocus: boolean) => void> = new Set();
 const appActiveStateChangeListeners: Set<(
   isActive: boolean
@@ -43,8 +44,12 @@ function setupEventListeners() {
   }
 
   // app active state: used by daily-js to auto-mute cam, for instance
+  setupAppStateListener()
+}
+
+function setupAppStateListener() {
   appState = AppState.currentState;
-  AppState.addEventListener('change', (nextState) => {
+  appStateSubscription = AppState.addEventListener('change', (nextState) => {
     const previousState = appState;
     appState = nextState;
     const wasActive = previousState === 'active';
@@ -54,13 +59,19 @@ function setupEventListeners() {
     }
   });
 }
+function removeAppStateListener() {
+  if (appStateSubscription){
+    appStateSubscription.remove()
+    appStateSubscription = null;
+  }
+}
 
 function setupGlobals(): void {
   // WebRTC APIs + global `window` object
   registerGlobals();
 
   // A shim to prevent errors in call machine bundle (not ideal)
-  global.window.addEventListener = () => {};
+  global.window.addEventListener = () => { };
 
   // A workaround for iOS HTTP cache not caching call object bundle due to size
   if (Platform.OS === 'ios') {
@@ -109,6 +120,7 @@ function setupGlobals(): void {
 setupEventListeners();
 setupGlobals();
 
+export {appStateSubscription, setupAppStateListener, removeAppStateListener};
 export default DailyIframe;
 export * from '@daily-co/daily-js';
 export { DailyMediaView };
