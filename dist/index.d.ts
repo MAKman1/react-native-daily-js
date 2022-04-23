@@ -1,0 +1,11 @@
+import DailyIframe from '../type-overrides/@daily-co/daily-js';
+import DailyMediaView from './DailyMediaView';
+import 'react-native-url-polyfill/auto';
+declare let appStateSubscription: any;
+declare function setupAppStateListener(): void;
+declare function removeAppStateListener(): void;
+export { appStateSubscription, setupAppStateListener, removeAppStateListener };
+export default DailyIframe;
+export * from '../type-overrides/@daily-co/daily-js';
+export { DailyMediaView };
+export * from '@daily-co/react-native-webrtc';
